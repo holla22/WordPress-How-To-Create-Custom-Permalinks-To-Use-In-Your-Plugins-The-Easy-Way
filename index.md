@@ -1,6 +1,8 @@
 # WordPress: How To Create Custom Permalinks To Use In Your Plugins The Easy Way
 
 ## This is an old tutorial I've written back in 2012 and not on my website anymore. Saving it here because a lot of people found it useful.
+
+<a class="bmc-button" target="_blank" href="https://www.buymeacoffee.com/z33man"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
   
 Hi guys, in this tutorial I will be teaching you how you can create custom permalinks. We are going to write a simple plugin to demonstrate how to do this.
 
