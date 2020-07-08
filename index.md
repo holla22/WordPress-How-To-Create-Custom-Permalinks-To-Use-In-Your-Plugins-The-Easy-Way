@@ -1,37 +1,93 @@
-## Welcome to GitHub Pages
+# WordPress: How To Create Custom Permalinks To Use In Your Plugins The Easy Way
 
-You can use the [editor on GitHub](https://github.com/holla22/WordPress-How-To-Create-Custom-Permalinks-To-Use-In-Your-Plugins-The-Easy-Way/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
+## This is an old tutorial I've written back in 2012 and not on my website anymore. Saving it here because a lot of people found it useful.
+  
+Hi guys, in this tutorial I will be teaching you how you can create custom permalinks. We are going to write a simple plugin to demonstrate how to do this.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+The first thing to do is add to filters and one action for our functions that we will be creating.
 
-### Markdown
+    add_action( 'wp_loaded','my_flush_rules' );
+    add_filter( 'rewrite_rules_array','my_insert_rewrite_rules' );
+    add_filter( 'query_vars','my_insert_query_vars' );
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+The only action we use is the wp_loaded action for our function called my_flush_rules.
 
-```markdown
-Syntax highlighted code block
+The first filter will be for our function called my_insert_rewrite_rules which will add new rules to our rules options in the database.
 
-# Header 1
-## Header 2
-### Header 3
+The second filter is our query_vars filter for our function called my_insert_query_vars.
 
-- Bulleted
-- List
+**Our first function is to add new rules to the database and flush the permalinks if the rules are not set.**
 
-1. Numbered
-2. List
+    function my_flush_rules() {
+        $rules = get_option( 'rewrite_rules' );
+    
+        if ( ! isset( $rules['(teaching-you)/(.+)$'] ) ) {
+            global $wp_rewrite;
+            $wp_rewrite->flush_rules();
+        }
+    
+    }
 
-**Bold** and _Italic_ and `Code` text
+In the function above we have set our new rules to be able to handle url’s like http://yourdomain.com/teaching-you/whatever-name-you-want-here where the “whatever-name-you-want-here” part will be the value you are passing on like a $_GET variable. You will see in the “$rules['(teaching-you)/(.+)$']” part we use regex to handle any name after teaching-you.
 
-[Link](url) and ![Image](src)
-```
+** Here we create our rules URL to be handled when it comes from the browser. **
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+    function my_insert_rewrite_rules( $rules ) {
+        $newrules = array();
+        $newrules['(teaching-you)/(.+)$'] = 'index.php?pagename=$matches[1]&friendly=$matches[2]';
+        
+        return $newrules + $rules;
+    }
 
-### Jekyll Themes
+The above function adds the URL type to be handled when the browser sends data to the page. We have two $matches that we target. The first one is for our page name which which is the slug “teaching-you”. The second $matches we use as our $_GET value that we need to capture.
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/holla22/WordPress-How-To-Create-Custom-Permalinks-To-Use-In-Your-Plugins-The-Easy-Way/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+** Adding our friendly id so that WordPress recognizes it. **
 
-### Support or Contact
+    function my_insert_query_vars( $vars ) {
+    
+        array_push($vars, 'friendly');
+        
+        return $vars;
+    }
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+In the above function we add an array_push method to add all our pretty permalink variables  for WordPress to recognize and use.
+
+**Add a custom function to call our new custom permalink structure**
+
+    function custom_permalink() {
+    
+        $friendlyurl = get_query_var( 'friendly' );
+        
+        if( isset($friendlyurl) ) {
+        
+            echo '<h2>Yay! My friendly url seems to work, here is the $friendlyurl value: '.$friendlyurl.'</h2>';
+        
+        }else{
+        
+            echo "<h2>Aaah! No friendly url here something is wrong!</h2>";
+        
+        }
+    }
+
+    add_shortcode('permalink','custom_permalink');
+
+    
+In the function above we are calling our $_GET using the get_query_var method as a normal $_GET won’t work so we have to do it this way to get our value from the browser.
+
+Next we check if our variable $friendlyurl has a value set, if it does we echo a message to see that it’s working.
+
+If it does not work add a message telling us that it’s not set.
+
+The last thing we do is add a shortcode to make things a bit easier for us to setup.
+
+Now that our code is done
+
+Our code is done, now we need to create a page called Teaching You with a permalink slug “teaching-you”
+
+Next add our shortcode to the page “[permalink]” and click publish. Before you view your page you need make sure that you have set the correct permalink structure under Settings->Permalinks to Post name
+
+Now you can view your page, go to your page you created called http://yourdomain.com/teaching-you and you will get a message telling you that your value is not set.
+
+If you type a name or number after the teaching-you part like so http://yourdomain.com/teaching-you/your-name-or-number-here You will get a totally different message telling you that it worked and gives the value you have entered in the url.
+
+That’s it hope you liked this tutorial, PLEASE COMMENT and ASK QUESTIONS if you don’t understand something.
