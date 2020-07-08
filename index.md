@@ -30,7 +30,7 @@ The second filter is our query_vars filter for our function called my_insert_que
 
 In the function above we have set our new rules to be able to handle url’s like http://yourdomain.com/teaching-you/whatever-name-you-want-here where the “whatever-name-you-want-here” part will be the value you are passing on like a $_GET variable. You will see in the “$rules['(teaching-you)/(.+)$']” part we use regex to handle any name after teaching-you.
 
-** Here we create our rules URL to be handled when it comes from the browser. **
+**Here we create our rules URL to be handled when it comes from the browser.**
 
     function my_insert_rewrite_rules( $rules ) {
         $newrules = array();
@@ -41,7 +41,7 @@ In the function above we have set our new rules to be able to handle url’s lik
 
 The above function adds the URL type to be handled when the browser sends data to the page. We have two $matches that we target. The first one is for our page name which which is the slug “teaching-you”. The second $matches we use as our $_GET value that we need to capture.
 
-** Adding our friendly id so that WordPress recognizes it. **
+**Adding our friendly id so that WordPress recognizes it.**
 
     function my_insert_query_vars( $vars ) {
     
